@@ -1,0 +1,79 @@
+[gd_scene load_steps=3 format=3 uid="uid://hnneefu01x8k"]
+
+[ext_resource type="Script" path="res://scripts/Game.gd" id="1_hrpts"]
+[ext_resource type="AudioStream" uid="uid://ddn4hxn6uccxl" path="res://sounds/startgame.ogg" id="2_yb0wj"]
+
+[node name="Game" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_hrpts")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 648.0
+offset_right = 1152.0
+offset_bottom = 648.0
+color = Color(0.0980392, 0.0980392, 0.0980392, 1)
+
+[node name="Board" type="ColorRect" parent="."]
+layout_mode = 0
+offset_right = 648.0
+offset_bottom = 648.0
+color = Color(0.329412, 0.329412, 0.329412, 1)
+
+[node name="BoardGrid" type="GridContainer" parent="Board"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -324.0
+offset_top = -324.0
+offset_right = 324.0
+offset_bottom = 324.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/h_separation = 0
+theme_override_constants/v_separation = 0
+columns = 8
+
+[node name="PlayWithFriend" type="Button" parent="."]
+layout_mode = 0
+offset_left = 832.0
+offset_top = 104.0
+offset_right = 960.0
+offset_bottom = 144.0
+text = "Graj (2 Graczy)"
+
+[node name="Authors" type="Label" parent="."]
+layout_mode = 0
+offset_left = 648.0
+offset_top = 616.0
+offset_right = 1150.0
+offset_bottom = 645.0
+theme_override_colors/font_color = Color(0.381703, 0.381703, 0.381703, 1)
+theme_override_font_sizes/font_size = 9
+text = "2024
+Autorami są Kacper Muszyński i Wiktoria Zaborowska"
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="StatusLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 768.0
+offset_top = 40.0
+offset_right = 1024.0
+offset_bottom = 88.0
+text = "Godot Checkers"
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("2_yb0wj")
+
+[connection signal="pressed" from="PlayWithFriend" to="." method="_play_button_pressed"]

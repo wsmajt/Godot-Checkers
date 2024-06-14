@@ -18,7 +18,7 @@ func GetHitMovesList():
 func ClearHitMovesList():
 	hitMovesList.clear()
 
-func GeneratePawnsMoveset(piece : Piece, piece_array : Array):
+func GeneratePawnsMoveset(piece : Piece, piece_array : Array) -> Array:
 	var type = piece.type
 	var slot_id = piece.slot_ID
 	var legalMoves := []
@@ -68,7 +68,7 @@ func GeneratePawnsMoveset(piece : Piece, piece_array : Array):
 				legalMoves.push_back(slot_id + 9)
 	return legalMoves
 	
-func GenerateQueensMoveset(piece : Piece, piece_array : Array):
+func GenerateQueensMoveset(piece : Piece, piece_array : Array) -> Array:
 	var type = piece.type
 	var slot_id = piece.slot_ID
 	var legalMoves := []

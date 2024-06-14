@@ -149,30 +149,37 @@ func add_piece(piece_type, location) -> void:
 	new_piece.piece_selected.connect(_on_piece_selected)
 	
 func _on_piece_selected(piece):
+	var legalMoves
 	if piece_selected:
 		_on_slot_clicked(grid_array[piece.slot_ID])
 	elif gamestart == true:
 		match whosMove:
 			DataHandler.Sides.WHITE:
 				if piece.type == DataHandler.PieceNames.WHITE_PAWN or piece.type == DataHandler.PieceNames.WHITE_QUEEN:
-					piece_selected = piece
 					match piece.type:
 						DataHandler.PieceNames.WHITE_PAWN:
-							var legalMoves = GeneratePath.GeneratePawnsMoveset(piece, piece_array)
-							set_board_filter(legalMoves)
+							legalMoves = GeneratePath.GeneratePawnsMoveset(piece, piece_array)
+							if legalMoves.size() > 0:
+								piece_selected = piece
+								set_board_filter(legalMoves)
 						DataHandler.PieceNames.WHITE_QUEEN:
-							var legalMoves = GeneratePath.GenerateQueensMoveset(piece, piece_array)
-							set_board_filter(legalMoves)
+							legalMoves = GeneratePath.GenerateQueensMoveset(piece, piece_array)
+							if legalMoves.size() > 0:
+								piece_selected = piece
+								set_board_filter(legalMoves)
 			DataHandler.Sides.BLACK:
 				if piece.type == DataHandler.PieceNames.BLACK_PAWN or piece.type == DataHandler.PieceNames.BLACK_QUEEN:
-					piece_selected = piece
 					match piece.type:
 						DataHandler.PieceNames.BLACK_PAWN:
-							var legalMoves = GeneratePath.GeneratePawnsMoveset(piece, piece_array)
-							set_board_filter(legalMoves)
+							legalMoves = GeneratePath.GeneratePawnsMoveset(piece, piece_array)
+							if legalMoves.size() > 0:
+								piece_selected = piece
+								set_board_filter(legalMoves)
 						DataHandler.PieceNames.BLACK_QUEEN:
-							var legalMoves = GeneratePath.GenerateQueensMoveset(piece, piece_array)
-							set_board_filter(legalMoves)
+							legalMoves = GeneratePath.GenerateQueensMoveset(piece, piece_array)
+							if legalMoves.size() > 0:
+								piece_selected = piece
+								set_board_filter(legalMoves)
 	
 func set_board_filter(slotsArray : Array):
 	for i in slotsArray:
