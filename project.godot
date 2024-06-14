@@ -15,7 +15,7 @@ config/description="very cool checkers game"
 config/version="Alpha 0.1"
 run/main_scene="res://scenes/Main.tscn"
 config/features=PackedStringArray("4.2", "Forward Plus")
-config/icon="res://icon.svg"
+config/icon="res://graphics/blackfig_queen.png"
 
 [autoload]
 

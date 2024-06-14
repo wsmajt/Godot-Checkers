@@ -1,11 +1,18 @@
 extends Control
 
+# Scenes
 @onready var slot_scene = preload("res://scenes/slot.tscn")
-@onready var board_grid = $Board/BoardGrid
 @onready var piece_scene = preload("res://prefabs/piece.tscn")
+
+# References
+@onready var board_grid = $Board/BoardGrid
 @onready var board = $Board
 @onready var StatusLabel = $StatusLabel
 
+# Sounds
+@onready var AudioPlayer = $AudioStreamPlayer2D
+@onready var startGameSound = preload("res://sounds/startgame.ogg")
+@onready var pieceMoveSound = preload("res://sounds/piecemove.ogg")
 
 var debug = false
 
@@ -59,15 +66,16 @@ func _on_slot_clicked(slot) -> void:
 	clear_board_filter()
 	piece_selected = null
 	
-	whosMove = DataHandler.getNextSide(whosMove)
-	if whosMove == DataHandler.Sides.WHITE:
-		StatusLabel.text = "Ruch gracza białego!"
-	else:
-		StatusLabel.text = "Ruch gracza czarnego!"
+	if gamestart == true:
+		whosMove = DataHandler.getNextSide(whosMove)
+		if whosMove == DataHandler.Sides.WHITE:
+			StatusLabel.text = "Ruch gracza białego!"
+		else:
+			StatusLabel.text = "Ruch gracza czarnego!"
 
 func update_board(from_loc, to_loc) -> void:
 	if piece_array[to_loc]:
-		if piece_array[to_loc].type%2 == 1: #if the captured piece is king, end
+		if piece_array[to_loc].type%2 == 1: 
 			gamestart = false
 		piece_array[to_loc].queue_free()
 		piece_array[to_loc] = 0
@@ -85,8 +93,38 @@ func move_piece(piece, location)-> void:
 	if hitMovesList.has(location):
 		piece_array[hitMovesList[location]].queue_free()
 		piece_array[hitMovesList[location]] = 0
-	GeneratePath.ClearHitMovesList()
-	
+		
+		var foundEnemyPieces = false
+		var foundPieces := []
+		var foundPaths := []
+		for p in piece_array:
+			if piece.type in [DataHandler.PieceNames.WHITE_PAWN, DataHandler.PieceNames.WHITE_QUEEN] and p is Piece:
+				if p.type > 1:
+					foundEnemyPieces = true
+					foundPieces.append(p)
+			elif piece.type in [DataHandler.PieceNames.BLACK_PAWN, DataHandler.PieceNames.BLACK_QUEEN] and p is Piece:
+				if p.type < 2:
+					foundEnemyPieces = true
+					foundPieces.append(p)
+		
+		if foundEnemyPieces == true:
+			for p in foundPieces:
+				if p.type in [DataHandler.PieceNames.WHITE_PAWN, DataHandler.PieceNames.BLACK_PAWN]:
+					foundPaths.append_array(GeneratePath.GeneratePawnsMoveset(p, piece_array)) 
+				else:
+					foundPaths.append_array(GeneratePath.GenerateQueensMoveset(p, piece_array)) 
+			
+			if foundPaths.size() == 0:
+				end_Game(piece)
+			
+		
+		if foundEnemyPieces == false:
+			end_Game(piece)
+		
+		GeneratePath.ClearHitMovesList()
+		
+	AudioPlayer.stream = pieceMoveSound
+	AudioPlayer.play()
 	var tween = get_tree().create_tween()
 	tween.tween_property(piece, "global_position", grid_array[location].global_position + icon_offset, 0.2)
 	piece_array[piece.slot_ID] = null # Usuwanie pionka z oryginalnej pozycji
@@ -113,7 +151,7 @@ func add_piece(piece_type, location) -> void:
 func _on_piece_selected(piece):
 	if piece_selected:
 		_on_slot_clicked(grid_array[piece.slot_ID])
-	else:
+	elif gamestart == true:
 		match whosMove:
 			DataHandler.Sides.WHITE:
 				if piece.type == DataHandler.PieceNames.WHITE_PAWN or piece.type == DataHandler.PieceNames.WHITE_QUEEN:
@@ -160,13 +198,22 @@ func clear_piece_array()->void:
 		if i:
 			i.queue_free()
 	piece_array.fill(0)
+	
 
+func end_Game(piece : Piece):
+	gamestart = false
+	if piece.type in [DataHandler.PieceNames.WHITE_PAWN, DataHandler.PieceNames.WHITE_QUEEN]:
+		StatusLabel.text = "Wygrał gracz biały!"
+	elif piece.type in [DataHandler.PieceNames.BLACK_PAWN, DataHandler.PieceNames.BLACK_QUEEN]:
+		StatusLabel.text = "Wygrał gracz czarny!"
 
 func _play_button_pressed():
 	clear_piece_array()
 	clear_board_filter()
 	whosMove = DataHandler.Sides.WHITE
 	StatusLabel.text = "Zaczyna gracz biały!"
+	AudioPlayer.stream = startGameSound
+	AudioPlayer.play()
 	piece_selected = null
 	parse_fen(fen)
 	gamestart = true;
