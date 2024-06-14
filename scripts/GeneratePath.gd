@@ -25,7 +25,7 @@ func GeneratePawnsMoveset(piece : Piece, piece_array : Array) -> Array:
 	var tempPiece
 	
 	if type == DataHandler.PieceNames.WHITE_PAWN:
-		if (slot_id - 7) % 8 != 0:
+		if (slot_id - 7) % 8 != 0 and (slot_id - 7) > 0:
 			if piece_array[slot_id - 7] is Piece:
 				tempPiece = piece_array[slot_id - 7]
 				var behindSlot = tempPiece.slot_ID - 7
@@ -35,7 +35,7 @@ func GeneratePawnsMoveset(piece : Piece, piece_array : Array) -> Array:
 						legalMoves.push_back(behindSlot)
 			else:
 				legalMoves.push_back(slot_id - 7)
-		if (slot_id - 9) % 8 != 7:
+		if (slot_id - 9) % 8 != 7 and (slot_id - 9) > 0:
 			if piece_array[slot_id - 9] is Piece:
 				tempPiece = piece_array[slot_id - 9]
 				var behindSlot = tempPiece.slot_ID - 9
@@ -46,7 +46,7 @@ func GeneratePawnsMoveset(piece : Piece, piece_array : Array) -> Array:
 			else:
 				legalMoves.push_back(slot_id - 9)
 	elif type == DataHandler.PieceNames.BLACK_PAWN:
-		if (slot_id + 7) % 8 != 7:
+		if (slot_id + 7) % 8 != 7 and (slot_id + 7) < 63:
 			if piece_array[slot_id + 7] is Piece:
 				tempPiece = piece_array[slot_id + 7]
 				var behindSlot = tempPiece.slot_ID + 7
@@ -56,7 +56,7 @@ func GeneratePawnsMoveset(piece : Piece, piece_array : Array) -> Array:
 						legalMoves.push_back(behindSlot)
 			else:
 				legalMoves.push_back(slot_id + 7)
-		if (slot_id + 9) % 8 != 0:
+		if (slot_id + 9) % 8 != 0 and (slot_id + 7) < 63:
 			if piece_array[slot_id + 9] is Piece:
 				tempPiece = piece_array[slot_id + 9]
 				var behindSlot = tempPiece.slot_ID + 9
