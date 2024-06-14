@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://b1gckqqcw3i0e"]
+
+[ext_resource type="Script" path="res://scripts/Board.gd" id="1_o3ero"]
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource("1_o3ero")
+
+[node name="GridContainer" type="GridContainer" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+columns = 8

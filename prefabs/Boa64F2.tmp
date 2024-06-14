@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://div1ig7h02l1e"]
+
+[ext_resource type="Script" path="res://scripts/BoardTile.gd" id="1_8b71u"]
+[ext_resource type="Texture2D" uid="uid://pc7mr0ybqva0" path="res://icon.svg" id="2_fiip7"]
+
+[node name="BoardTile" type="Node2D"]
+script = ExtResource("1_8b71u")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(64, 64)
+texture = ExtResource("2_fiip7")

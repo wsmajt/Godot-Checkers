@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://v6wqugxja0tv"]
+
+[ext_resource type="Script" path="res://scripts/Tile.gd" id="1_445lc"]
+
+[node name="Tile" type="Button"]
+offset_left = 54.0
+offset_top = 137.0
+offset_right = 62.0
+offset_bottom = 145.0
+script = ExtResource("1_445lc")
