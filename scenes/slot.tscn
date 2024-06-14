@@ -1,11 +1,11 @@
 [gd_scene load_steps=2 format=3 uid="uid://clp3cqqhf0qku"]
 
-[ext_resource type="Script" path="res://scripts/slot.gd" id="1_xv2j5"]
+[ext_resource type="Script" path="res://scripts/Slot.gd" id="1_xxp6o"]
 
 [node name="Slot" type="ColorRect"]
 custom_minimum_size = Vector2(81, 81)
 color = Color(0.172549, 0.172549, 0.172549, 1)
-script = ExtResource("1_xv2j5")
+script = ExtResource("1_xxp6o")
 
 [node name="Filter" type="ColorRect" parent="."]
 layout_mode = 1

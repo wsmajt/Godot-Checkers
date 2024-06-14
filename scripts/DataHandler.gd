@@ -8,7 +8,14 @@ var fen_dict := {
 	"p" = PieceNames.BLACK_PAWN,
 	"q" = PieceNames.BLACK_QUEEN
 }
+enum Sides {WHITE, BLACK}
 enum slot_states {NONE, FREE}
+
+func getNextSide(side : Sides):
+	if side == Sides.WHITE:
+		return Sides.BLACK
+	else:
+		return Sides.WHITE
 
 # Called when the node enters the scene tree for the first time.
 func _ready():

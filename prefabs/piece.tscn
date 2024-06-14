@@ -1,10 +1,10 @@
 [gd_scene load_steps=3 format=3 uid="uid://d30w5rfi07ux8"]
 
-[ext_resource type="Script" path="res://scripts/piece.gd" id="1_arr3f"]
+[ext_resource type="Script" path="res://scripts/Piece.gd" id="1_hq0js"]
 [ext_resource type="Texture2D" uid="uid://clqhxrec1rek5" path="res://graphics/blackfig.png" id="1_ra80i"]
 
 [node name="Piece" type="Node2D"]
-script = ExtResource("1_arr3f")
+script = ExtResource("1_hq0js")
 
 [node name="Icon" type="TextureRect" parent="."]
 texture_filter = 5
