@@ -22,6 +22,11 @@ config/icon="res://icon.svg"
 DataHandler="*res://scripts/DataHandler.gd"
 GeneratePath="*res://scripts/GeneratePath.gd"
 
+[display]
+
+window/stretch/mode="viewport"
+window/stretch/scale_mode="integer"
+
 [dotnet]
 
 project/assembly_name="WarcabyProjekt"

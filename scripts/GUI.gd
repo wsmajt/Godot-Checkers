@@ -6,7 +6,7 @@ extends Control
 @onready var board = $Board
 
 
-var debug = true
+var debug = false
 
 var grid_array := []
 var piece_array := []
@@ -140,13 +140,15 @@ func parse_fen(fen : String) -> void:
 			add_piece(DataHandler.fen_dict[i], board_index)
 			board_index += 1
 
-func _on_test_button_pressed():
-	clear_board_filter()
-	piece_selected = null
-	parse_fen(fen)
-
 func clear_piece_array()->void:
 	for i in piece_array:
 		if i:
 			i.queue_free()
 	piece_array.fill(0)
+
+
+func _play_button_pressed():
+	clear_board_filter()
+	piece_selected = null
+	parse_fen(fen)
+	gamestart = true;

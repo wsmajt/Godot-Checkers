@@ -41,12 +41,12 @@ theme_override_constants/h_separation = 0
 theme_override_constants/v_separation = 0
 columns = 8
 
-[node name="TestButton" type="Button" parent="."]
+[node name="PlayButton" type="Button" parent="."]
 layout_mode = 0
 offset_left = 832.0
 offset_top = 24.0
 offset_right = 960.0
 offset_bottom = 64.0
-text = "Test"
+text = "Graj"
 
-[connection signal="pressed" from="TestButton" to="." method="_on_test_button_pressed"]
+[connection signal="pressed" from="PlayButton" to="." method="_play_button_pressed"]
