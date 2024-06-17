@@ -1,4 +1,4 @@
-class_name GeneratePath extends Node
+extends Node
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -10,32 +10,33 @@ func _process(delta):
 	pass
 
 func count_pieces(piece_array : Array):
-	DataHandler.white_left = 0
-	DataHandler.black_left = 0
-	DataHandler.black_queens = 0
-	DataHandler.white_queens = 0
+	var white_left = 0
+	var black_left = 0
+	var black_queens = 0
+	var white_queens = 0
 	for p in piece_array:
 		if p is Piece:
 			match p.type:
 				DataHandler.PieceNames.WHITE_PAWN:
-					DataHandler.white_left += 1
+					white_left += 1
 				DataHandler.PieceNames.WHITE_QUEEN:
-					DataHandler.white_left += 1
-					DataHandler.white_queens += 1
+					white_left += 1
+					white_queens += 1
 				DataHandler.PieceNames.BLACK_PAWN:
-					DataHandler.black_left += 1
+					black_left += 1
 				DataHandler.PieceNames.BLACK_QUEEN:
-					DataHandler.black_left += 1
-					DataHandler.black_queens += 1
+					black_left += 1
+					black_queens += 1
 	
-	if DataHandler.debug == true:
-		print("Białe pionki: " + str(DataHandler.white_left))
-		print("Białe damki: " + str(DataHandler.white_queens))
-		print("Czarne pionki: " + str(DataHandler.black_left))
-		print("Czarne damki: " + str(DataHandler.black_queens))
+	"""if DataHandler.debug == true:
+		print("Białe pionki: " + str(white_left))
+		print("Białe damki: " + str(white_queens))
+		print("Czarne pionki: " + str(black_left))
+		print("Czarne damki: " + str(black_queens))"""
+	return [white_left, white_queens, black_left, black_queens]
 
-func evaluate():
-	return DataHandler.white_left - DataHandler.black_left + (DataHandler.white_queens * 0.5) - (DataHandler.black_queens * 0.5)
+func evaluate(pieces_left : Array):
+	return pieces_left[2] - pieces_left[0] + (pieces_left[3] * 0.5) - (pieces_left[1] * 0.5)
 	
 func GeneratePawnsMoveset(piece : Piece, piece_array : Array) -> Array:
 	var type = piece.type

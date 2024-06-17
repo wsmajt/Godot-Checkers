@@ -1,10 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://hnneefu01x8k"]
+[gd_scene load_steps=3 format=3 uid="uid://hnneefu01x8k"]
 
 [ext_resource type="Script" path="res://scripts/Game.gd" id="1_hrpts"]
-[ext_resource type="StyleBox" uid="uid://bn47lbq0pgunp" path="res://styles/normal_button.tres" id="2_6vrof"]
 [ext_resource type="AudioStream" uid="uid://ddn4hxn6uccxl" path="res://sounds/startgame.ogg" id="2_yb0wj"]
-[ext_resource type="StyleBox" uid="uid://bcdmpkba3uet1" path="res://styles/hover_button.tres" id="3_d48jb"]
-[ext_resource type="StyleBox" uid="uid://k3p5pmm4q7pc" path="res://styles/pressed_button.tres" id="4_lum2g"]
 
 [node name="Game" type="Control"]
 layout_mode = 3
@@ -47,25 +44,19 @@ columns = 8
 
 [node name="PlayWithFriend" type="Button" parent="."]
 layout_mode = 0
-offset_left = 768.0
+offset_left = 832.0
 offset_top = 104.0
-offset_right = 1024.0
+offset_right = 960.0
 offset_bottom = 144.0
-theme_override_styles/normal = ExtResource("2_6vrof")
-theme_override_styles/hover = ExtResource("3_d48jb")
-theme_override_styles/pressed = ExtResource("4_lum2g")
 text = "Graj (2 Graczy)"
 
 [node name="PlayWithAI" type="Button" parent="."]
 layout_mode = 0
-offset_left = 768.0
+offset_left = 832.0
 offset_top = 152.0
-offset_right = 1024.0
+offset_right = 960.0
 offset_bottom = 192.0
-theme_override_styles/normal = ExtResource("2_6vrof")
-theme_override_styles/hover = ExtResource("3_d48jb")
-theme_override_styles/pressed = ExtResource("4_lum2g")
-text = "Graj (Gracz VS SI)"
+text = "Graj (1 Gracz)"
 
 [node name="Authors" type="Label" parent="."]
 layout_mode = 0

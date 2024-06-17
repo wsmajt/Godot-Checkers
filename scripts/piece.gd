@@ -20,4 +20,3 @@ func load_icon(piece_name) -> void:
 func _on_icon_gui_input(event):
 	if event.is_action_pressed("mouse_left"):
 		emit_signal("piece_selected", self)
-		

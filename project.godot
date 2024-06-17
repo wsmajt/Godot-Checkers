@@ -21,6 +21,7 @@ config/icon="res://graphics/blackfig_queen.png"
 
 DataHandler="*res://scripts/DataHandler.gd"
 CheckersBot="*res://scripts/CheckersBot.gd"
+GeneratePath="*res://scripts/GeneratePath.gd"
 
 [display]
 

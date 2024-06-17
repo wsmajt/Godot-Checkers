@@ -3,12 +3,6 @@ extends Node
 # DEBUG
 var debug = false
 
-# MinMax Algorithm
-var white_left = 0
-var white_queens = 0
-var black_left = 0
-var black_queens = 0
-
 var assets := []
 enum PieceNames {WHITE_PAWN, WHITE_QUEEN, BLACK_PAWN, BLACK_QUEEN}
 var fen_dict := {
@@ -32,6 +26,7 @@ func _ready():
 	assets.append("res://graphics/whitefig_queen.png")
 	assets.append("res://graphics/blackfig.png")
 	assets.append("res://graphics/blackfig_queen.png")
+
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
