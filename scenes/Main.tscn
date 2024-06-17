@@ -1,6 +1,5 @@
-[gd_scene load_steps=3 format=3 uid="uid://c44xikoj8ylgd"]
+[gd_scene load_steps=2 format=3 uid="uid://c44xikoj8ylgd"]
 
-[ext_resource type="Script" path="res://scripts/Main.gd" id="1_inxke"]
 [ext_resource type="PackedScene" uid="uid://hnneefu01x8k" path="res://scenes/Game.tscn" id="1_tpc72"]
 
 [node name="Main" type="Control"]
@@ -10,7 +9,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_inxke")
 
 [node name="GUI" parent="." instance=ExtResource("1_tpc72")]
 layout_mode = 1

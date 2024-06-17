@@ -1,7 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://hnneefu01x8k"]
+[gd_scene load_steps=3 format=3 uid="uid://hnneefu01x8k"]
 
 [ext_resource type="Script" path="res://scripts/Game.gd" id="1_hrpts"]
-[ext_resource type="Script" path="res://scripts/Board.gd" id="2_7iqxf"]
 [ext_resource type="AudioStream" uid="uid://ddn4hxn6uccxl" path="res://sounds/startgame.ogg" id="2_yb0wj"]
 
 [node name="Game" type="Control"]
@@ -25,7 +24,6 @@ layout_mode = 0
 offset_right = 648.0
 offset_bottom = 648.0
 color = Color(0.329412, 0.329412, 0.329412, 1)
-script = ExtResource("2_7iqxf")
 
 [node name="BoardGrid" type="GridContainer" parent="Board"]
 layout_mode = 1
@@ -53,7 +51,6 @@ offset_bottom = 144.0
 text = "Graj (2 Graczy)"
 
 [node name="PlayWithAI" type="Button" parent="."]
-layout_mode = 0
 offset_left = 832.0
 offset_top = 152.0
 offset_right = 960.0
