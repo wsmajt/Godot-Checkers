@@ -20,8 +20,7 @@ var piece_array := []
 var icon_offset := Vector2(40.5, 40.5)
 var legalMoves := []
 
-#"1p1p1p1p/p1p1p1p1/1p1p1p1p/8/8/P1P1P1P1/1P1P1P1P/P1P1P1P1 w - 0 1"
-var fen = "8/8/8/8/8/P1P1P1P1/1P1P1P1P/P1P1P1P1 w - 0 1"
+var fen = "1p1p1p1p/p1p1p1p1/1p1p1p1p/8/8/P1P1P1P1/1P1P1P1P/P1P1P1P1 w - 0 1"
 var whosMove := DataHandler.Sides.WHITE 
 var gamestart := false
 var aiGame := false
