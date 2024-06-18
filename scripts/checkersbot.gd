@@ -12,10 +12,11 @@ func minimax(board : Array, depth, player : DataHandler.Sides):
 	var best_board
 	
 	# Checking if depth is 0 so no more minmax, or checking if move is the winner move
-	if depth == 0 or DataHandler.check_board_winner(board[0]) != null:
+	if depth == 0 or DataHandler.check_board_winner(board[0], player) != null:
 		# Counting pieces and returning array with [piece_array[], move[piece_slot, move_slot, jump_slot], score]
 		var pieces_left = GeneratePath.count_pieces(board[0])
-		return [board[0], board[1], GeneratePath.evaluate(pieces_left)]
+		var end_array = [board[0], board[1], GeneratePath.evaluate(pieces_left)]
+		return end_array
 		
 	# Maximizing player is AI or Black Pieces
 	if player == DataHandler.Sides.BLACK:

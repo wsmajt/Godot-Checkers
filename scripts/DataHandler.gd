@@ -26,16 +26,18 @@ func getNextSide(side : Sides):
 		return Sides.WHITE
 	
 # Logic for checking the winner
-func check_board_winner(piece_array : Array):
+func check_board_winner(piece_array : Array, whosMove : DataHandler.Sides):
 	var pieces := piece_array.duplicate(true)
 	
 	var whitePieces := []
+	var whitePiecesCount = 0
 	whitePieces.resize(64)
 	whitePieces.fill(-1)
 	
 	var whitePaths := []
 	
 	var blackPieces := []
+	var blackPiecesCount = 0
 	blackPieces.resize(64)
 	blackPieces.fill(-1)
 	
@@ -49,18 +51,22 @@ func check_board_winner(piece_array : Array):
 			match piece:
 				DataHandler.PieceNames.WHITE_PAWN:
 					whitePieces[counter] = piece
+					whitePiecesCount += 1
 				DataHandler.PieceNames.WHITE_QUEEN:
 					whitePieces[counter] = piece
+					whitePiecesCount += 1
 				DataHandler.PieceNames.BLACK_PAWN:
 					blackPieces[counter] = piece
+					blackPiecesCount += 1
 				DataHandler.PieceNames.BLACK_QUEEN:
 					blackPieces[counter] = piece
+					blackPiecesCount += 1
 		counter += 1
 					
 	# If no pieces left -> Winner
-	if whitePieces.size() == 0:
+	if blackPiecesCount == 0:
 		return WinnerSide.BLACK
-	elif blackPieces.size() == 0:
+	elif whitePiecesCount == 0:
 		return WinnerSide.WHITE
 	else:
 		counter = 0
@@ -78,7 +84,11 @@ func check_board_winner(piece_array : Array):
 				blackPaths.append_array(GeneratePath.get_valid_moves(counter, p, pieces)) 
 			counter += 1
 			
-		if blackPaths.size() == 0 and whitePaths.size() == 0:
+		if blackPaths.size() == 0 and whosMove == DataHandler.Sides.BLACK:
+			return DataHandler.WinnerSide.WHITE
+		elif whitePaths.size() == 0 and whosMove == DataHandler.Sides.WHITE:
+			return DataHandler.WinnerSide.BLACK
+		elif blackPaths.size() == 0 and whitePaths.size() == 0:
 			# No Paths -> Draw
 			return DataHandler.WinnerSide.DRAW
 			

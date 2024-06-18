@@ -1,0 +1,55 @@
+[gd_resource type="Theme" load_steps=6 format=3 uid="uid://cak22ro43y00"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ku41w"]
+bg_color = Color(0.544118, 0.194573, 0.272122, 1)
+border_width_bottom = 8
+border_color = Color(0.533851, 0.182433, 0.331846, 1)
+border_blend = true
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.358236, 0.507308, 0.772532, 0.6)
+shadow_offset = Vector2(8, 8)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4u0j1"]
+bg_color = Color(0.810921, 0.351433, 0.444637, 1)
+border_width_bottom = 8
+border_color = Color(0.533333, 0.184314, 0.333333, 1)
+border_blend = true
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.0329041, 0.11847, 0.159599, 0.6)
+shadow_offset = Vector2(8, 8)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_70474"]
+bg_color = Color(0.683179, 0.263722, 0.35439, 1)
+border_width_bottom = 8
+border_color = Color(0.533333, 0.184314, 0.333333, 1)
+border_blend = true
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.0329041, 0.11847, 0.159599, 0.6)
+shadow_offset = Vector2(8, 8)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o2x03"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_s05cw"]
+bg_color = Color(0.602927, 0.172886, 0.243511, 1)
+
+[resource]
+Button/styles/disabled = SubResource("StyleBoxFlat_ku41w")
+Button/styles/hover = SubResource("StyleBoxFlat_ku41w")
+Button/styles/normal = SubResource("StyleBoxFlat_4u0j1")
+Button/styles/pressed = SubResource("StyleBoxFlat_70474")
+Label/colors/font_color = Color(0.929199, 0.539673, 0.684741, 1)
+Label/colors/font_outline_color = Color(0.464756, 0.149374, 0.2744, 1)
+Label/colors/font_shadow_color = Color(0.102865, 0.167773, 0.304003, 0)
+Label/constants/outline_size = 8
+Label/styles/normal = SubResource("StyleBoxFlat_o2x03")
+Panel/styles/panel = SubResource("StyleBoxFlat_s05cw")

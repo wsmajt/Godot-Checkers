@@ -1,7 +1,7 @@
-[gd_resource type="Theme" load_steps=5 format=3 uid="uid://dredgdcq0j8an"]
+[gd_resource type="Theme" load_steps=6 format=3 uid="uid://dredgdcq0j8an"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ku41w"]
-bg_color = Color(0.47278, 0.738181, 0.886386, 1)
+bg_color = Color(0.136138, 0.318375, 0.413106, 1)
 border_width_bottom = 8
 border_color = Color(0.1926, 0.196307, 0.394474, 1)
 border_blend = true
@@ -39,10 +39,17 @@ shadow_offset = Vector2(8, 8)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o2x03"]
 bg_color = Color(0.6, 0.6, 0.6, 0)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_s05cw"]
+bg_color = Color(0.0846899, 0.0846899, 0.0846899, 1)
+
 [resource]
+Button/styles/disabled = SubResource("StyleBoxFlat_ku41w")
 Button/styles/hover = SubResource("StyleBoxFlat_ku41w")
 Button/styles/normal = SubResource("StyleBoxFlat_4u0j1")
 Button/styles/pressed = SubResource("StyleBoxFlat_70474")
 Label/colors/font_color = Color(0.608352, 0.661979, 0.918247, 1)
+Label/colors/font_outline_color = Color(0.273089, 0.257048, 0.420039, 1)
 Label/colors/font_shadow_color = Color(0.102865, 0.167773, 0.304003, 0)
+Label/constants/outline_size = 8
 Label/styles/normal = SubResource("StyleBoxFlat_o2x03")
+Panel/styles/panel = SubResource("StyleBoxFlat_s05cw")

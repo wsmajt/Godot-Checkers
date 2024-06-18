@@ -1,5 +1,8 @@
 class_name Game extends Control
 
+# Theme Styles
+@onready var mysterious_style = preload("res://styles/mysterious.tres")
+
 # Scenes
 @onready var slot_scene = preload("res://scenes/slot.tscn")
 @onready var piece_scene = preload("res://prefabs/piece.tscn")
@@ -7,13 +10,17 @@ class_name Game extends Control
 # References
 @onready var board_grid = $Board/BoardGrid
 @onready var board = $Board
+@onready var background = $Background
 @onready var StatusLabel = $Background/StatusLabel
+@onready var difficultyDropDown = $Background/DifficultyDropDown
+@onready var resetButton = $Background/ResetButton
 
 # Sounds
 @onready var AudioPlayer = $AudioStreamPlayer2D
 @onready var startGameSound = preload("res://sounds/startgame.ogg")
 @onready var pieceMoveSound = preload("res://sounds/piecemove.ogg")
 @onready var endGameSound = preload("res://sounds/endgame.ogg")
+@onready var mysteriousSound = preload("res://sounds/devil_sound.ogg")
 
 # Locals
 var grid_array := []
@@ -25,6 +32,8 @@ var whosMove = DataHandler.Sides.WHITE
 var gamestart := false
 var aiGame := false
 var piece_selected = null
+var difficulty = 1
+var hidden_difficulty_added = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -54,6 +63,13 @@ func _process(_delta):
 	if Input.is_action_just_pressed("mouse_right") and piece_selected:
 		piece_selected = null
 		clear_board_filter()
+	elif Input.is_action_just_pressed("hidden_difficulty") and hidden_difficulty_added == false:
+		hidden_difficulty_added = true
+		AudioPlayer.stream = mysteriousSound
+		AudioPlayer.play()
+		background.theme = mysterious_style
+		difficultyDropDown.add_separator("MEMORY HEAVY")
+		difficultyDropDown.add_item("KOSZMAR", 4)
 
 func create_slot():
 	# Using slot_scene as prefab
@@ -97,7 +113,15 @@ func _on_slot_clicked(slot) -> void:
 		await get_tree().create_timer(0.6).timeout
 		
 		# AI is checking for the best move it can make
-		var ai_board = CheckersBot.minimax([GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL)], 2, DataHandler.Sides.BLACK)
+		var ai_board
+		if difficulty == 0:
+			ai_board = CheckersBot.minimax([GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL), [], 0], 1, DataHandler.Sides.BLACK)
+		elif difficulty == 1:
+			ai_board = CheckersBot.minimax([GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL), [], 0], 2, DataHandler.Sides.BLACK)
+		elif difficulty == 2:
+			ai_board = CheckersBot.minimax([GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL), [], 0], 3, DataHandler.Sides.BLACK)
+		elif difficulty == 4:
+			ai_board = CheckersBot.minimax([GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL), [], 0], 4, DataHandler.Sides.BLACK)
 		# Algorithm is returning board Array with [piece_array[], move[piece_slot, move_slot, jump_slot], delta = value of the move]
 		var move = ai_board[1]
 		var piece_id = move[0]
@@ -149,34 +173,8 @@ func move_piece(piece, location)-> void:
 	piece_array[location] = piece
 	piece.slot_ID = location
 	
-	# Check for repeated moves
-	"""if whosMove == DataHandler.Sides.WHITE:
-		if move in DataHandler.repeatedMoves[0]:
-			DataHandler.repeatedMoves[0].clear()
-			DataHandler.repeatedMoves[0].append(move)
-		else :
-			var count = 0
-			for m in DataHandler.repeatedMoves[0]:
-				if move == m:
-					count += 1
-			if count > 2:
-				end_Game(DataHandler.WinnerSide.BLACK)
-				return
-	else:
-		if move in DataHandler.repeatedMoves[1]:
-			DataHandler.repeatedMoves[1].clear()
-			DataHandler.repeatedMoves[1].append(move)
-		else :
-			var count = 0
-			for m in DataHandler.repeatedMoves[1]:
-				if move == m:
-					count += 1
-			if count > 2:
-				end_Game(DataHandler.WinnerSide.WHITE)
-				return"""
-	
 	# Check if someone wins
-	var winStatus = DataHandler.check_board_winner(GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL))
+	var winStatus = DataHandler.check_board_winner(GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL), whosMove)
 	if winStatus != null:
 		end_Game(winStatus)
 	else:
@@ -275,6 +273,7 @@ func clear_piece_array()->void:
 func end_Game(status : DataHandler.WinnerSide):
 	gamestart = false
 	aiGame = false
+	difficultyDropDown.disabled = false
 	if status == DataHandler.WinnerSide.WHITE:
 		StatusLabel.text = "Wygrał gracz biały!"
 	elif status == DataHandler.WinnerSide.BLACK:
@@ -292,6 +291,7 @@ func _play_button_pressed():
 	clear_board_filter()
 	whosMove = DataHandler.Sides.WHITE
 	StatusLabel.text = "Zaczyna gracz biały!"
+	resetButton.disabled = false
 	AudioPlayer.stream = startGameSound
 	AudioPlayer.play()
 	piece_selected = null
@@ -304,6 +304,8 @@ func _play_ai_button_pressed():
 	clear_piece_array()
 	clear_board_filter()
 	whosMove = DataHandler.Sides.WHITE
+	difficultyDropDown.disabled = true
+	resetButton.disabled = false
 	StatusLabel.text = "Zaczyna gracz biały!"
 	AudioPlayer.stream = startGameSound
 	AudioPlayer.play()
@@ -316,3 +318,24 @@ func _play_ai_button_pressed():
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		get_tree().quit()
+
+
+func _on_difficulty_selected(index):
+	difficulty = index
+	if difficulty in [0, 1, 2]:
+		fen = "1p1p1p1p/p1p1p1p1/1p1p1p1p/8/8/P1P1P1P1/1P1P1P1P/P1P1P1P1 w - 0 1"
+	elif difficulty == 4:
+		fen = "1p1p1p1p/p1p1p1p1/1q1q1q1q/8/8/P1P1P1P1/1P1P1P1P/P1P1P1P1 w - 0 1"
+
+
+func _on_reset_button_pressed():
+	AudioPlayer.stream = endGameSound
+	AudioPlayer.play()
+	clear_piece_array()
+	clear_board_filter()
+	whosMove = DataHandler.Sides.WHITE
+	difficultyDropDown.disabled = false
+	resetButton.disabled = true
+	piece_selected = null
+	aiGame = false
+	gamestart = false
