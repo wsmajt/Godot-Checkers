@@ -1,7 +1,13 @@
 class_name Piece extends Node2D
 
-signal piece_selected(piece)
+# Piece prefab script
+# Util Functions
+
+# References to the objects from the scene
 @onready var icon_path = $Icon
+
+# Locals
+signal piece_selected(piece)
 var slot_ID := -1
 var type : int
 

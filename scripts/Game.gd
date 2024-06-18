@@ -7,7 +7,7 @@ class_name Game extends Control
 # References
 @onready var board_grid = $Board/BoardGrid
 @onready var board = $Board
-@onready var StatusLabel = $StatusLabel
+@onready var StatusLabel = $Background/StatusLabel
 
 # Sounds
 @onready var AudioPlayer = $AudioStreamPlayer2D
@@ -15,57 +15,75 @@ class_name Game extends Control
 @onready var pieceMoveSound = preload("res://sounds/piecemove.ogg")
 @onready var endGameSound = preload("res://sounds/endgame.ogg")
 
+# Locals
 var grid_array := []
 var piece_array := []
 var icon_offset := Vector2(40.5, 40.5)
 var legalMoves := []
-
 var fen = "1p1p1p1p/p1p1p1p1/1p1p1p1p/8/8/P1P1P1P1/1P1P1P1P/P1P1P1P1 w - 0 1"
 var whosMove := DataHandler.Sides.WHITE 
 var gamestart := false
 var aiGame := false
-
 var piece_selected = null
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	# Creating slots where Pieces can move
 	for i in range(64):
 		create_slot()
 		
 	var colorbit = 0
 	for i in range(8):
 		for j in range(8):
+			# Setting background color
 			if j%2 == colorbit:
 				grid_array[i*8+j].set_background(Color(185,185,185))
 		if colorbit == 0:
 			colorbit = 1
 		else: colorbit = 0
 		
+	# Resizing piece array to 64 slots
+	# In checkers we use only half of this slots
+	# Filling with -1 (This means that there is no Piece)
 	piece_array.resize(64)
-	piece_array.fill(0)
-	pass # Replace with function body.
+	piece_array.fill(-1)
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
+	# Input checked every frame
 	if Input.is_action_just_pressed("mouse_right") and piece_selected:
 		piece_selected = null
 		clear_board_filter()
 
 func create_slot():
+	# Using slot_scene as prefab
 	var new_slot = slot_scene.instantiate()
 	new_slot.slot_ID = grid_array.size()
+	
+	# Adding slot as child to BoardGrid
 	board_grid.add_child(new_slot)
 	grid_array.push_back(new_slot)
+	
+	# Debug things
 	if DataHandler.debug:
 		new_slot._dev_changetext(str(new_slot.slot_ID))
+	
+	# Connect event to slot
 	new_slot.slot_clicked.connect(_on_slot_clicked)
 
+# Event that fires when u click the slot
 func _on_slot_clicked(slot) -> void:
 	if not piece_selected:
 		return
 	if slot.state != DataHandler.slot_states.FREE: return
+	
+	# When piece is selected and Slot is without piece
+	# Move there and clear the board filter
 	move_piece(piece_selected, slot.slot_ID)
 	clear_board_filter()
 	piece_selected = null
 	
+	# Checking if game is still running if yes then change Sides
 	if gamestart == true:
 		whosMove = DataHandler.getNextSide(whosMove)
 		if whosMove == DataHandler.Sides.WHITE:
@@ -73,43 +91,71 @@ func _on_slot_clicked(slot) -> void:
 		else:
 			StatusLabel.text = "Ruch gracza czarnego!"
 	
+	# AI Logic for making a move
 	if whosMove == DataHandler.Sides.BLACK and aiGame == true:
+		# Need to wait 0.6 cause bot is too fast
 		await get_tree().create_timer(0.6).timeout
-		var board = CheckersBot.minimax(Board.new(piece_array, null, 0), 3, DataHandler.Sides.BLACK)
-		legalMoves.append(board.move)
+		
+		# AI is checking for the best move it can make
+		var board = CheckersBot.minimax([GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL), null, 0], 3, DataHandler.Sides.BLACK)
+		# Algorithm is returning board Array with [piece_array[], move[piece_slot, move_slot, jump_slot], delta = value of the move]
+		var move = board[1]
+		var piece_id = move[0]
+		var move_id = move[1]
+		
+		# Appending legalmoves so AI could make that move
+		legalMoves.append(move)
+		
+		# Need to wait 0.6 cause bot is too fast
 		await get_tree().create_timer(0.6).timeout
-		move_piece(piece_array[board.move.piece_id], board.move.move_id)
+		
+		# Finally AI moving a piece
+		move_piece(piece_array[piece_id], move_id)
+		
+		# Checking if game is still running if yes then change Sides
 		if gamestart == true:
 			whosMove = DataHandler.getNextSide(whosMove)
 			if whosMove == DataHandler.Sides.WHITE:
 				StatusLabel.text = "Ruch gracza białego!"
 			else:
 				StatusLabel.text = "Ruch gracza czarnego!"
-	
+
+# Logic for moving a piece
 func move_piece(piece, location)-> void:
 	var pieceLocation = piece.slot_ID
-	var move : Move
+	var move 
+	
+	# Checking if move is in legalMoves Array
 	for m in legalMoves:
-		if m.piece_id == pieceLocation and m.move_id == location:
+		if m[0] == pieceLocation and m[1] == location:
 			move = m
 			break
-			
-	if move.jump_id != null:
-		piece_array[move.jump_id].queue_free()
-		piece_array[move.jump_id] = 0
-	var winner_board = Board.new(piece_array, move, 0)
-	if winner_board.check_board_winner() == true:
+	var move_id = move[1]
+	var jump_id = move[2]
+	
+	# If move has jump_slot, delete piece from jump_slot if true
+	if jump_id != null:
+		piece_array[jump_id].queue_free()
+		piece_array[jump_id] = -1
+		
+	# Check if someone wins
+	if DataHandler.check_board_winner(GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL)) == true:
 		end_Game(piece)
 	else:
+		# Playing sound
 		AudioPlayer.stream = pieceMoveSound
 		AudioPlayer.play()
 	
+	# Basic animation for moving a piece
 	var tween = get_tree().create_tween()
 	tween.tween_property(piece, "global_position", grid_array[location].global_position + icon_offset, 0.2)
-	piece_array[piece.slot_ID] = 0 # Usuwanie pionka z oryginalnej pozycji
-	piece_array[location] = piece # Poruszenie do nowej lokacji
+	
+	# Removing piece from old_slot and placing it in new slot in piece_array
+	piece_array[pieceLocation] = -1
+	piece_array[location] = piece
 	piece.slot_ID = location
 	
+	# If piece is on the other end make it a Queen
 	if location >= 56 and location <= 63 and piece.type == DataHandler.PieceNames.BLACK_PAWN:
 		piece.type = DataHandler.PieceNames.BLACK_QUEEN
 		piece.load_icon(piece.type)
@@ -117,48 +163,68 @@ func move_piece(piece, location)-> void:
 		piece.type = DataHandler.PieceNames.WHITE_QUEEN
 		piece.load_icon(piece.type)
 		
-	var pieces_left = GeneratePath.count_pieces(piece_array)
 	
+# Adding piece to a slot (Only using on the start of the game)
 func add_piece(piece_type, location) -> void:
+	# Making use of piece_scene and Adding as child to Board
 	var new_piece = piece_scene.instantiate()
 	board.add_child(new_piece)
+	
+	# Variables for the piece
 	new_piece.type = piece_type
 	new_piece.load_icon(piece_type)
 	new_piece.global_position = grid_array[location].global_position + icon_offset
+	
+	# Set location of piece and connecting event
 	piece_array[location] = new_piece
 	new_piece.slot_ID = location
 	new_piece.piece_selected.connect(_on_piece_selected)
 	
+# Logic for selecting a piece
 func _on_piece_selected(piece):
 	if piece_selected:
+		# If piece is selected already then pass function
 		_on_slot_clicked(grid_array[piece.slot_ID])
 	elif gamestart == true:
+		
+		# Checking whos move is now. Need this for not moving other player piece
 		match whosMove:
 			DataHandler.Sides.WHITE:
 				if piece.type == DataHandler.PieceNames.WHITE_PAWN or piece.type == DataHandler.PieceNames.WHITE_QUEEN:
-					legalMoves = GeneratePath.get_valid_moves(piece, piece_array)
+					# Getting legalMoves for the piece
+					legalMoves = GeneratePath.get_valid_moves(piece.slot_ID, piece.type, GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL))
 					if legalMoves.size() > 0:
-								piece_selected = piece
-								set_board_filter(legalMoves)
+							piece_selected = piece
+							# Set board filter for available moves
+							set_board_filter(legalMoves)
 			DataHandler.Sides.BLACK:
 				if aiGame == false:
 					if piece.type == DataHandler.PieceNames.BLACK_PAWN or piece.type == DataHandler.PieceNames.BLACK_QUEEN:
-						legalMoves = GeneratePath.get_valid_moves(piece, piece_array)
+						# Getting legalMoves for the piece
+						legalMoves = GeneratePath.get_valid_moves(piece.slot_ID, piece.type, GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL))
 						if legalMoves.size() > 0:
-									piece_selected = piece
-									set_board_filter(legalMoves)
-	
+								piece_selected = piece
+								# Set board filter for available moves
+								set_board_filter(legalMoves)
+
+# Logic for setting filter for available slot to move
 func set_board_filter(moveArray : Array):
 	for move in moveArray:
-		grid_array[move.move_id].set_filter(DataHandler.slot_states.FREE)
+		grid_array[move[1]].set_filter(DataHandler.slot_states.FREE)
 
+# Logic for clearing filter
 func clear_board_filter():
 	for i in grid_array:
 		i.set_filter()
-		
+
+# Fen Algorithm changed and used for making custom position for pieces
+# https://en.wikipedia.org/wiki/Forsyth-Edwards_Notation
 func parse_fen(fen : String) -> void:
+	# Spliting parts of Fen string
 	var boardstate = fen.split(" ")
 	var board_index := 0
+	
+	# Logic for putting pieces at game start
 	for i in boardstate[0]:
 		if i == "/":continue
 		if i.is_valid_int():
@@ -167,22 +233,30 @@ func parse_fen(fen : String) -> void:
 			add_piece(DataHandler.fen_dict[i], board_index)
 			board_index += 1
 
+# Clearing piece_array for next game
 func clear_piece_array()->void:
 	for i in piece_array:
-		if i:
+		if i is Piece:
+			# Need to free the node !!!
+			# Without it node is staying in memory
+			# Memory leaks !!
 			i.queue_free()
-	piece_array.fill(0)
+	piece_array.fill(-1)
 	
-
+# Logic for ending the game and showing the winner
 func end_Game(piece : Piece):
 	gamestart = false
+	aiGame = false
 	if piece.type in [DataHandler.PieceNames.WHITE_PAWN, DataHandler.PieceNames.WHITE_QUEEN]:
 		StatusLabel.text = "Wygrał gracz biały!"
 	elif piece.type in [DataHandler.PieceNames.BLACK_PAWN, DataHandler.PieceNames.BLACK_QUEEN]:
 		StatusLabel.text = "Wygrał gracz czarny!"
+		
+	# Sound effects
 	AudioPlayer.stream = endGameSound
 	AudioPlayer.play()
 
+# Event for button (PvP)
 func _play_button_pressed():
 	clear_piece_array()
 	clear_board_filter()
@@ -192,9 +266,10 @@ func _play_button_pressed():
 	AudioPlayer.play()
 	piece_selected = null
 	parse_fen(fen)
-	gamestart = true;
+	aiGame = false
+	gamestart = true
 
-
+# Event for button (PvAI)
 func _play_ai_button_pressed():
 	clear_piece_array()
 	clear_board_filter()
@@ -206,3 +281,8 @@ func _play_ai_button_pressed():
 	parse_fen(fen)
 	aiGame = true
 	gamestart = true
+
+# Closing app Logic
+func _notification(what):
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		get_tree().quit()

@@ -9,6 +9,8 @@ func _ready():
 func _process(delta):
 	pass
 
+# Logic for counting pieces
+# Its used to make delta for the AI
 func count_pieces(piece_array : Array):
 	var white_left = 0
 	var black_left = 0
@@ -28,219 +30,279 @@ func count_pieces(piece_array : Array):
 					black_left += 1
 					black_queens += 1
 	
-	"""if DataHandler.debug == true:
+	if DataHandler.debug == true:
 		print("Białe pionki: " + str(white_left))
 		print("Białe damki: " + str(white_queens))
 		print("Czarne pionki: " + str(black_left))
-		print("Czarne damki: " + str(black_queens))"""
+		print("Czarne damki: " + str(black_queens))
 	return [white_left, white_queens, black_left, black_queens]
 
+# Basic delta for AI
 func evaluate(pieces_left : Array):
 	return pieces_left[2] - pieces_left[0] + (pieces_left[3] * 0.5) - (pieces_left[1] * 0.5)
 	
-func GeneratePawnsMoveset(piece : Piece, piece_array : Array) -> Array:
-	var type = piece.type
-	var slot_id = piece.slot_ID
+# Logic for Pawns Moveset
+func GeneratePawnsMoveset(slot_id : int, type : DataHandler.PieceNames, piece_array : Array) -> Array:
 	var legalMoves := []
-	var tempPiece
+	var tempPiece_type
+	var tempPiece_slot_id
 	
 	if type == DataHandler.PieceNames.WHITE_PAWN:
+		# Checking for borders
 		if (slot_id - 7) % 8 != 0 and (slot_id - 7) > 0:
-			if piece_array[slot_id - 7] is Piece:
-				tempPiece = piece_array[slot_id - 7]
-				var behindSlot = tempPiece.slot_ID - 7
+			# Checking for piece on the corner
+			if piece_array[slot_id - 7] in DataHandler.PieceNames.values():
+				tempPiece_type = piece_array[slot_id - 7]
+				tempPiece_slot_id = slot_id - 7
+				var behindSlot = tempPiece_slot_id - 7
+				# if piece found check for the next slot to jump
 				if behindSlot > 0 and behindSlot % 8 != 0:
-					if tempPiece.type > 1 and not (piece_array[behindSlot] is Piece) :
-						var newMove = Move.new(slot_id, behindSlot, tempPiece.slot_ID)
+					# Enemy and next slot is free so we're adding to legalMoves
+					if tempPiece_type > 1 and not (piece_array[behindSlot] in DataHandler.PieceNames.values()) :
+						var newMove = [slot_id, behindSlot, tempPiece_slot_id]
 						legalMoves.push_back(newMove)
 			else:
-				var newMove = Move.new(slot_id, slot_id - 7, null)
+				# slot is free
+				var newMove = [slot_id, slot_id - 7, null]
 				legalMoves.push_back(newMove)
+		# Checking for borders
 		if (slot_id - 9) % 8 != 7 and (slot_id - 9) > 0:
-			if piece_array[slot_id - 9] is Piece:
-				tempPiece = piece_array[slot_id - 9]
-				var behindSlot = tempPiece.slot_ID - 9
+			# Checking for piece on the corner
+			if piece_array[slot_id - 9] in DataHandler.PieceNames.values():
+				tempPiece_type = piece_array[slot_id - 9]
+				tempPiece_slot_id = slot_id - 9
+				var behindSlot = tempPiece_slot_id - 9
+				# if piece found check for the next slot to jump
 				if behindSlot > 0 and behindSlot % 8 != 7:
-					if tempPiece.type > 1 and not (piece_array[behindSlot] is Piece) :
-						var newMove = Move.new(slot_id, behindSlot, tempPiece.slot_ID)
+					# Enemy and next slot is free so we're adding to legalMoves
+					if tempPiece_type > 1 and not (piece_array[behindSlot] in DataHandler.PieceNames.values()) :
+						var newMove = [slot_id, behindSlot, tempPiece_slot_id]
 						legalMoves.push_back(newMove)
 			else:
-				var newMove = Move.new(slot_id, slot_id - 9, null)
+				# slot is free
+				var newMove = [slot_id, slot_id - 9, null]
 				legalMoves.push_back(newMove)
 	elif type == DataHandler.PieceNames.BLACK_PAWN:
+		# Checking for borders
 		if (slot_id + 7) % 8 != 7 and (slot_id + 7) < 63:
-			if piece_array[slot_id + 7] is Piece:
-				tempPiece = piece_array[slot_id + 7]
-				var behindSlot = tempPiece.slot_ID + 7
+			# Checking for piece on the corner
+			if piece_array[slot_id + 7] in DataHandler.PieceNames.values():
+				tempPiece_type = piece_array[slot_id + 7]
+				tempPiece_slot_id = slot_id + 7
+				var behindSlot = tempPiece_slot_id + 7
+				# if piece found check for the next slot to jump
 				if behindSlot < 63 and behindSlot % 8 != 7:
-					if tempPiece.type < 2 and not (piece_array[behindSlot] is Piece):
-						var newMove = Move.new(slot_id, behindSlot, tempPiece.slot_ID)
+					# Enemy and next slot is free so we're adding to legalMoves
+					if tempPiece_type < 2 and not (piece_array[behindSlot] in DataHandler.PieceNames.values()):
+						var newMove = [slot_id, behindSlot, tempPiece_slot_id]
 						legalMoves.push_back(newMove)
 			else:
-				var newMove = Move.new(slot_id, slot_id + 7, null)
+				var newMove = [slot_id, slot_id + 7, null]
 				legalMoves.push_back(newMove)
+		# Checking for borders
 		if (slot_id + 9) % 8 != 0 and (slot_id + 7) < 63:
-			if piece_array[slot_id + 9] is Piece:
-				tempPiece = piece_array[slot_id + 9]
-				var behindSlot = tempPiece.slot_ID + 9
+			# Checking for piece on the corner
+			if piece_array[slot_id + 9] in DataHandler.PieceNames.values():
+				tempPiece_type = piece_array[slot_id + 9]
+				tempPiece_slot_id = slot_id + 9
+				var behindSlot = tempPiece_slot_id + 9
+				# if piece found check for the next slot to jump
 				if behindSlot < 63 and behindSlot % 8 != 0:
-					if tempPiece.type < 2 and not (piece_array[behindSlot] is Piece):
-						var newMove = Move.new(slot_id, behindSlot, tempPiece.slot_ID)
+					# Enemy and next slot is free so we're adding to legalMoves
+					if tempPiece_type < 2 and not (piece_array[behindSlot] in DataHandler.PieceNames.values()):
+						var newMove = [slot_id, behindSlot, tempPiece_slot_id]
 						legalMoves.push_back(newMove)
 			else:
-				var newMove = Move.new(slot_id, slot_id + 9, null)
+				# slot is free
+				var newMove = [slot_id, slot_id + 9, null]
 				legalMoves.push_back(newMove)
 	return legalMoves
 	
-func GenerateQueensMoveset(piece : Piece, piece_array : Array) -> Array:
-	var type = piece.type
-	var slot_id = piece.slot_ID
+func GenerateQueensMoveset(slot_id : int, type : DataHandler.PieceNames, piece_array : Array) -> Array:
 	var legalMoves := []
-	var tempPiece
+	var tempPiece_type
+	var tempPiece_slot_id
 	
 	if type == DataHandler.PieceNames.WHITE_QUEEN:
+		# For Queen we're using for loop, rest is the same
 		for i in range(slot_id + 7, 64, 7):
+			# Checking for borders
 			if i % 8 != 7:
-				if piece_array[i] is Piece:
-					tempPiece = piece_array[i]
-					var behindSlot = tempPiece.slot_ID + 7
+				if piece_array[i] in DataHandler.PieceNames.values():
+					tempPiece_type = piece_array[i]
+					tempPiece_slot_id = i
+					var behindSlot = tempPiece_slot_id + 7
 					if behindSlot < 63 and behindSlot % 8 != 7:
-						if tempPiece.type > 1 and not (piece_array[behindSlot] is Piece):
-							var newMove = Move.new(slot_id, behindSlot, tempPiece.slot_ID)
+						if tempPiece_type > 1 and not (piece_array[behindSlot] in DataHandler.PieceNames.values()):
+							var newMove = [slot_id, behindSlot, tempPiece_slot_id]
 							legalMoves.push_back(newMove)
 					break;
 				else:
-					var newMove = Move.new(slot_id, i, null)
+					var newMove = [slot_id, i, null]
 					legalMoves.push_back(newMove)
 			else:
 				break;
 		for i in range(slot_id - 7, 0, -7):
+			# Checking for borders
 			if i % 8 != 0:
-				if piece_array[i] is Piece:
-					tempPiece = piece_array[i]
-					var behindSlot = tempPiece.slot_ID - 7
+				if piece_array[i] in DataHandler.PieceNames.values():
+					tempPiece_type = piece_array[i]
+					tempPiece_slot_id = i
+					var behindSlot = tempPiece_slot_id - 7
 					if behindSlot > 0 and behindSlot % 8 != 0:
-						if tempPiece.type > 1 and not (piece_array[behindSlot] is Piece):
-							var newMove = Move.new(slot_id, behindSlot, tempPiece.slot_ID)
+						if tempPiece_type > 1 and not (piece_array[behindSlot] in DataHandler.PieceNames.values()):
+							var newMove = [slot_id, behindSlot, tempPiece_slot_id]
 							legalMoves.push_back(newMove)
 					break;
 				else:
-					var newMove = Move.new(slot_id, i, null)
+					var newMove = [slot_id, i, null]
 					legalMoves.push_back(newMove)
 			else:
 				break;
 		for i in range(slot_id + 9, 64, 9):
+			# Checking for borders
 			if i % 8 != 0:
-				if piece_array[i] is Piece:
-					tempPiece = piece_array[i]
-					var behindSlot = tempPiece.slot_ID + 9
+				if piece_array[i] in DataHandler.PieceNames.values():
+					tempPiece_type = piece_array[i]
+					tempPiece_slot_id = i
+					var behindSlot = tempPiece_slot_id + 9
 					if behindSlot < 63 and behindSlot % 8 != 0:
-						if tempPiece.type > 1 and not (piece_array[behindSlot] is Piece):
-							var newMove = Move.new(slot_id, behindSlot, tempPiece.slot_ID)
+						if tempPiece_type> 1 and not (piece_array[behindSlot] in DataHandler.PieceNames.values()):
+							var newMove = [slot_id, behindSlot, tempPiece_slot_id]
 							legalMoves.push_back(newMove)
 					break;
 				else:
-					var newMove = Move.new(slot_id, i, null)
+					var newMove = [slot_id, i, null]
 					legalMoves.push_back(newMove)
 			else:
 				break;
 		for i in range(slot_id - 9, 0, -9):
+			# Checking for borders
 			if i % 8 != 7:
-				if piece_array[i] is Piece:
-					tempPiece = piece_array[i]
-					var behindSlot = tempPiece.slot_ID - 9 
+				if piece_array[i] in DataHandler.PieceNames.values():
+					tempPiece_type = piece_array[i]
+					tempPiece_slot_id = i
+					var behindSlot = tempPiece_slot_id - 9 
 					if behindSlot > 0 and behindSlot % 8 != 7:
-						if tempPiece.type > 1 and not (piece_array[behindSlot] is Piece):
-							var newMove = Move.new(slot_id, behindSlot, tempPiece.slot_ID)
+						if tempPiece_type > 1 and not (piece_array[behindSlot] in DataHandler.PieceNames.values()):
+							var newMove = [slot_id, behindSlot, tempPiece_slot_id]
 							legalMoves.push_back(newMove)
 					break;
 				else:
-					var newMove = Move.new(slot_id, i, null)
+					var newMove = [slot_id, i, null]
 					legalMoves.push_back(newMove)
 			else:
 				break;
 	elif type == DataHandler.PieceNames.BLACK_QUEEN:
 		for i in range(slot_id + 7, 64, 7):
+			# Checking for borders
 			if i % 8 != 7:
-				if piece_array[i] is Piece:
-					tempPiece = piece_array[i]
-					var behindSlot = tempPiece.slot_ID + 7
+				if piece_array[i] in DataHandler.PieceNames.values():
+					tempPiece_type = piece_array[i]
+					tempPiece_slot_id = i
+					var behindSlot = tempPiece_slot_id + 7
 					if behindSlot < 63 and behindSlot % 8 != 7:
-						if tempPiece.type < 2 and not (piece_array[behindSlot] is Piece):
-							var newMove = Move.new(slot_id, behindSlot, tempPiece.slot_ID)
+						if tempPiece_type < 2 and not (piece_array[behindSlot] in DataHandler.PieceNames.values()):
+							var newMove = [slot_id, behindSlot, tempPiece_slot_id]
 							legalMoves.push_back(newMove)
 					break;
 				else:
-					var newMove = Move.new(slot_id, i, null)
+					var newMove = [slot_id, i, null]
 					legalMoves.push_back(newMove)
 			else:
 				break;
 		for i in range(slot_id - 7, 0, -7):
+			# Checking for borders
 			if i % 8 != 0:
-				if piece_array[i] is Piece:
-					tempPiece = piece_array[i]
-					var behindSlot = tempPiece.slot_ID - 7
+				if piece_array[i] in DataHandler.PieceNames.values():
+					tempPiece_type = piece_array[i]
+					tempPiece_slot_id = i
+					var behindSlot = tempPiece_slot_id - 7
 					if behindSlot > 0 and behindSlot % 8 != 0:
-						if tempPiece.type < 2 and not (piece_array[behindSlot] is Piece):
-							var newMove = Move.new(slot_id, behindSlot, tempPiece.slot_ID)
+						if tempPiece_type < 2 and not (piece_array[behindSlot] in DataHandler.PieceNames.values()):
+							var newMove = [slot_id, behindSlot, tempPiece_slot_id]
 							legalMoves.push_back(newMove)
 					break;
 				else:
-					var newMove = Move.new(slot_id, i, null)
+					var newMove = [slot_id, i, null]
 					legalMoves.push_back(newMove)
 			else:
 				break;
 		for i in range(slot_id + 9, 64, 9):
+			# Checking for borders
 			if i % 8 != 0:
-				if piece_array[i] is Piece:
-					tempPiece = piece_array[i]
-					var behindSlot = tempPiece.slot_ID + 9
+				if piece_array[i] in DataHandler.PieceNames.values():
+					tempPiece_type = piece_array[i]
+					tempPiece_slot_id = i
+					var behindSlot = tempPiece_slot_id + 9
 					if behindSlot < 63 and behindSlot % 8 != 0:
-						if tempPiece.type < 2 and not (piece_array[behindSlot] is Piece):
-							var newMove = Move.new(slot_id, behindSlot, tempPiece.slot_ID)
+						if tempPiece_type < 2 and not (piece_array[behindSlot] in DataHandler.PieceNames.values()):
+							var newMove = [slot_id, behindSlot, tempPiece_slot_id]
 							legalMoves.push_back(newMove)
 					break;
 				else:
-					var newMove = Move.new(slot_id, i, null)
+					var newMove = [slot_id, i, null]
 					legalMoves.push_back(newMove)
 			else:
 				break;
 		for i in range(slot_id - 9, 0, -9):
+			# Checking for borders
 			if i % 8 != 7:
-				if piece_array[i] is Piece:
-					tempPiece = piece_array[i]
-					var behindSlot = tempPiece.slot_ID - 9
+				if piece_array[i] in DataHandler.PieceNames.values():
+					tempPiece_type = piece_array[i]
+					tempPiece_slot_id = i
+					var behindSlot = tempPiece_slot_id - 9
 					if behindSlot > 0 and behindSlot % 8 != 7:
-						if tempPiece.type < 2 and not (piece_array[behindSlot] is Piece):
-							var newMove = Move.new(slot_id, behindSlot, tempPiece.slot_ID)
+						if tempPiece_type < 2 and not (piece_array[behindSlot] in DataHandler.PieceNames.values()):
+							var newMove = [slot_id, behindSlot, tempPiece_slot_id]
 							legalMoves.push_back(newMove)
 					break;
 				else:
-					var newMove = Move.new(slot_id, i, null)
+					var newMove = [slot_id, i, null]
 					legalMoves.push_back(newMove)
 			else:
 				break;
 	return legalMoves
 
+# Logic for converting main piece_array to array with only types
+# Its for not making any memory leaks so the game is smooth and not
+# memory consuming
+# We can use this function for making array with pieces from only one Side
 func get_all_pieces(piece_array : Array, side : DataHandler.Sides):
 	var pieces := []
-	for p in piece_array:
-		if p is Piece:
-			if side == DataHandler.Sides.WHITE:
-				if p.type < 2:
-					pieces.append(p)
-			elif side == DataHandler.Sides.BLACK:
-				if p.type > 1:
-					pieces.append(p)
+	if side == DataHandler.Sides.ALL:
+		for p in piece_array:
+			if p in DataHandler.PieceNames.values():
+				pieces.append(p)
+			if p is Piece:
+				pieces.append(p.type)
+			else:
+				pieces.append(-1)
+	else:
+		for p in piece_array:
+			if p in DataHandler.PieceNames.values():
+				if side == DataHandler.Sides.BLACK:
+					if p > 1:
+						pieces.append(p)
+					else:
+						pieces.append(-1)
+				elif side == DataHandler.Sides.WHITE:
+					if p < 2 and p != -1:
+						pieces.append(p)
+					else:
+						pieces.append(-1)
+			else:
+				pieces.append(-1)
 	return pieces
-					
-func get_valid_moves(piece : Piece, piece_array : Array):
-	match piece.type:
+
+# Helper logic for generating movesets
+func get_valid_moves(slot_id, type, piece_array : Array, ):
+	match type:
 		DataHandler.PieceNames.WHITE_PAWN:
-			return GeneratePawnsMoveset(piece, piece_array)
+			return GeneratePawnsMoveset(slot_id, type, piece_array)
 		DataHandler.PieceNames.WHITE_QUEEN:
-			return GenerateQueensMoveset(piece, piece_array)
+			return GenerateQueensMoveset(slot_id, type, piece_array)
 		DataHandler.PieceNames.BLACK_PAWN:
-			return GeneratePawnsMoveset(piece, piece_array)
+			return GeneratePawnsMoveset(slot_id, type, piece_array)
 		DataHandler.PieceNames.BLACK_QUEEN:
-			return GenerateQueensMoveset(piece, piece_array)
+			return GenerateQueensMoveset(slot_id, type, piece_array)

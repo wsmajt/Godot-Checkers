@@ -1,10 +1,17 @@
 extends ColorRect
 
+# Slot prefab script
+# Util Functions
+
+# References to the objects from the scene
 @onready var filter_path = $Filter
+@onready var debugLabel = $DebugText
+
+# Locals
 var slot_ID := -1
 signal slot_clicked(slot)
 var state = DataHandler.slot_states.NONE
-@onready var debugLabel = $DebugText
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
