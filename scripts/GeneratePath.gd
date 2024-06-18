@@ -1,14 +1,5 @@
 extends Node
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
-
 # Logic for counting pieces
 # Its used to make delta for the AI
 func count_pieces(piece_array : Array):
@@ -29,17 +20,27 @@ func count_pieces(piece_array : Array):
 				DataHandler.PieceNames.BLACK_QUEEN:
 					black_left += 1
 					black_queens += 1
+		if p in DataHandler.PieceNames.values():
+			match p:
+				DataHandler.PieceNames.WHITE_PAWN:
+					white_left += 1
+				DataHandler.PieceNames.WHITE_QUEEN:
+					white_left += 1
+					white_queens += 1
+				DataHandler.PieceNames.BLACK_PAWN:
+					black_left += 1
+				DataHandler.PieceNames.BLACK_QUEEN:
+					black_left += 1
+					black_queens += 1
 	
 	if DataHandler.debug == true:
-		print("Białe pionki: " + str(white_left))
-		print("Białe damki: " + str(white_queens))
-		print("Czarne pionki: " + str(black_left))
-		print("Czarne damki: " + str(black_queens))
+		print("Białe Pionki: " + str(white_left) + " Białe damki: " + str(white_queens) + " Czarne pionki: " + str(black_left) + " Czarne damki: " + str(black_queens))
 	return [white_left, white_queens, black_left, black_queens]
 
 # Basic delta for AI
 func evaluate(pieces_left : Array):
-	return pieces_left[2] - pieces_left[0] + (pieces_left[3] * 0.5) - (pieces_left[1] * 0.5)
+	var randomizing_same_value_move = "%.2f" % randf_range(-0.1, 0.1)
+	return (pieces_left[2] - pieces_left[0] + (pieces_left[3] * 0.5 - pieces_left[1] * 0.5)) + (randomizing_same_value_move.to_float())
 	
 # Logic for Pawns Moveset
 func GeneratePawnsMoveset(slot_id : int, type : DataHandler.PieceNames, piece_array : Array) -> Array:
@@ -270,33 +271,34 @@ func GenerateQueensMoveset(slot_id : int, type : DataHandler.PieceNames, piece_a
 # We can use this function for making array with pieces from only one Side
 func get_all_pieces(piece_array : Array, side : DataHandler.Sides):
 	var pieces := []
+	pieces.resize(64)
+	pieces.fill(-1)
+	var counter = 0
 	if side == DataHandler.Sides.ALL:
 		for p in piece_array:
 			if p in DataHandler.PieceNames.values():
-				pieces.append(p)
-			if p is Piece:
-				pieces.append(p.type)
-			else:
-				pieces.append(-1)
+				pieces[counter] = p
+			elif p is Piece:
+				pieces[counter] = p.type
+			counter += 1
 	else:
 		for p in piece_array:
 			if p in DataHandler.PieceNames.values():
 				if side == DataHandler.Sides.BLACK:
 					if p > 1:
-						pieces.append(p)
+						pieces[counter] = p
 					else:
-						pieces.append(-1)
+						pieces[counter] = -1
 				elif side == DataHandler.Sides.WHITE:
 					if p < 2 and p != -1:
-						pieces.append(p)
+						pieces[counter] = p
 					else:
-						pieces.append(-1)
-			else:
-				pieces.append(-1)
-	return pieces
+						pieces[counter] = -1
+			counter += 1
+	return pieces.duplicate(true)
 
 # Helper logic for generating movesets
-func get_valid_moves(slot_id, type, piece_array : Array, ):
+func get_valid_moves(slot_id, type, piece_array : Array):
 	match type:
 		DataHandler.PieceNames.WHITE_PAWN:
 			return GeneratePawnsMoveset(slot_id, type, piece_array)

@@ -21,7 +21,7 @@ var piece_array := []
 var icon_offset := Vector2(40.5, 40.5)
 var legalMoves := []
 var fen = "1p1p1p1p/p1p1p1p1/1p1p1p1p/8/8/P1P1P1P1/1P1P1P1P/P1P1P1P1 w - 0 1"
-var whosMove := DataHandler.Sides.WHITE 
+var whosMove = DataHandler.Sides.WHITE 
 var gamestart := false
 var aiGame := false
 var piece_selected = null
@@ -49,7 +49,7 @@ func _ready():
 	piece_array.fill(-1)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	# Input checked every frame
 	if Input.is_action_just_pressed("mouse_right") and piece_selected:
 		piece_selected = null
@@ -97,9 +97,9 @@ func _on_slot_clicked(slot) -> void:
 		await get_tree().create_timer(0.6).timeout
 		
 		# AI is checking for the best move it can make
-		var board = CheckersBot.minimax([GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL), null, 0], 3, DataHandler.Sides.BLACK)
+		var ai_board = CheckersBot.minimax([GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL)], 2, DataHandler.Sides.BLACK)
 		# Algorithm is returning board Array with [piece_array[], move[piece_slot, move_slot, jump_slot], delta = value of the move]
-		var move = board[1]
+		var move = ai_board[1]
 		var piece_id = move[0]
 		var move_id = move[1]
 		
@@ -122,6 +122,7 @@ func _on_slot_clicked(slot) -> void:
 
 # Logic for moving a piece
 func move_piece(piece, location)-> void:
+	if gamestart == false: return
 	var pieceLocation = piece.slot_ID
 	var move 
 	
@@ -130,21 +131,14 @@ func move_piece(piece, location)-> void:
 		if m[0] == pieceLocation and m[1] == location:
 			move = m
 			break
-	var move_id = move[1]
 	var jump_id = move[2]
+	
 	
 	# If move has jump_slot, delete piece from jump_slot if true
 	if jump_id != null:
 		piece_array[jump_id].queue_free()
 		piece_array[jump_id] = -1
 		
-	# Check if someone wins
-	if DataHandler.check_board_winner(GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL)) == true:
-		end_Game(piece)
-	else:
-		# Playing sound
-		AudioPlayer.stream = pieceMoveSound
-		AudioPlayer.play()
 	
 	# Basic animation for moving a piece
 	var tween = get_tree().create_tween()
@@ -155,6 +149,41 @@ func move_piece(piece, location)-> void:
 	piece_array[location] = piece
 	piece.slot_ID = location
 	
+	# Check for repeated moves
+	"""if whosMove == DataHandler.Sides.WHITE:
+		if move in DataHandler.repeatedMoves[0]:
+			DataHandler.repeatedMoves[0].clear()
+			DataHandler.repeatedMoves[0].append(move)
+		else :
+			var count = 0
+			for m in DataHandler.repeatedMoves[0]:
+				if move == m:
+					count += 1
+			if count > 2:
+				end_Game(DataHandler.WinnerSide.BLACK)
+				return
+	else:
+		if move in DataHandler.repeatedMoves[1]:
+			DataHandler.repeatedMoves[1].clear()
+			DataHandler.repeatedMoves[1].append(move)
+		else :
+			var count = 0
+			for m in DataHandler.repeatedMoves[1]:
+				if move == m:
+					count += 1
+			if count > 2:
+				end_Game(DataHandler.WinnerSide.WHITE)
+				return"""
+	
+	# Check if someone wins
+	var winStatus = DataHandler.check_board_winner(GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL))
+	if winStatus != null:
+		end_Game(winStatus)
+	else:
+		# Playing sound
+		AudioPlayer.stream = pieceMoveSound
+		AudioPlayer.play()
+	
 	# If piece is on the other end make it a Queen
 	if location >= 56 and location <= 63 and piece.type == DataHandler.PieceNames.BLACK_PAWN:
 		piece.type = DataHandler.PieceNames.BLACK_QUEEN
@@ -162,7 +191,6 @@ func move_piece(piece, location)-> void:
 	elif location >= 0 and location <= 7 and piece.type == DataHandler.PieceNames.WHITE_PAWN:
 		piece.type = DataHandler.PieceNames.WHITE_QUEEN
 		piece.load_icon(piece.type)
-		
 	
 # Adding piece to a slot (Only using on the start of the game)
 func add_piece(piece_type, location) -> void:
@@ -219,9 +247,9 @@ func clear_board_filter():
 
 # Fen Algorithm changed and used for making custom position for pieces
 # https://en.wikipedia.org/wiki/Forsyth-Edwards_Notation
-func parse_fen(fen : String) -> void:
+func parse_fen(fen_string : String) -> void:
 	# Spliting parts of Fen string
-	var boardstate = fen.split(" ")
+	var boardstate = fen_string.split(" ")
 	var board_index := 0
 	
 	# Logic for putting pieces at game start
@@ -244,13 +272,15 @@ func clear_piece_array()->void:
 	piece_array.fill(-1)
 	
 # Logic for ending the game and showing the winner
-func end_Game(piece : Piece):
+func end_Game(status : DataHandler.WinnerSide):
 	gamestart = false
 	aiGame = false
-	if piece.type in [DataHandler.PieceNames.WHITE_PAWN, DataHandler.PieceNames.WHITE_QUEEN]:
+	if status == DataHandler.WinnerSide.WHITE:
 		StatusLabel.text = "Wygrał gracz biały!"
-	elif piece.type in [DataHandler.PieceNames.BLACK_PAWN, DataHandler.PieceNames.BLACK_QUEEN]:
+	elif status == DataHandler.WinnerSide.BLACK:
 		StatusLabel.text = "Wygrał gracz czarny!"
+	elif status == DataHandler.WinnerSide.DRAW:
+		StatusLabel.text = "Remis!"
 		
 	# Sound effects
 	AudioPlayer.stream = endGameSound

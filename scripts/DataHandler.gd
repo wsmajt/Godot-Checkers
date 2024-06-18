@@ -7,7 +7,9 @@ extends Node
 var debug = false
 
 var assets := []
+var repeatedMoves := [[],[]]
 enum PieceNames {WHITE_PAWN, WHITE_QUEEN, BLACK_PAWN, BLACK_QUEEN}
+enum WinnerSide {WHITE, BLACK, DRAW}
 var fen_dict := {
 	"P" = PieceNames.WHITE_PAWN,
 	"Q" = PieceNames.WHITE_QUEEN,
@@ -24,59 +26,63 @@ func getNextSide(side : Sides):
 		return Sides.WHITE
 	
 # Logic for checking the winner
-func check_board_winner(piece_array : Array) -> bool:
-	var pieces = piece_array
+func check_board_winner(piece_array : Array):
+	var pieces := piece_array.duplicate(true)
+	
 	var whitePieces := []
+	whitePieces.resize(64)
+	whitePieces.fill(-1)
+	
 	var whitePaths := []
+	
 	var blackPieces := []
+	blackPieces.resize(64)
+	blackPieces.fill(-1)
+	
 	var blackPaths := []
+	
+	var counter = 0
 	
 	# Sorting pieces
 	for piece in pieces:
 		if piece in DataHandler.PieceNames.values():
 			match piece:
 				DataHandler.PieceNames.WHITE_PAWN:
-					whitePieces.append(piece)
+					whitePieces[counter] = piece
 				DataHandler.PieceNames.WHITE_QUEEN:
-					whitePieces.append(piece)
+					whitePieces[counter] = piece
 				DataHandler.PieceNames.BLACK_PAWN:
-					blackPieces.append(piece)
+					blackPieces[counter] = piece
 				DataHandler.PieceNames.BLACK_QUEEN:
-					blackPieces.append(piece)
-		else :
-			whitePieces.append(-1)
-			blackPieces.append(-1)
+					blackPieces[counter] = piece
+		counter += 1
 					
 	# If no pieces left -> Winner
-	if whitePieces.size() == 0 or blackPieces.size() == 0:
-		return true
+	if whitePieces.size() == 0:
+		return WinnerSide.BLACK
+	elif blackPieces.size() == 0:
+		return WinnerSide.WHITE
 	else:
-		var counter = 0
+		counter = 0
 		# Checking paths that pieces can move
 		for p in whitePieces:
-			if p == DataHandler.PieceNames.WHITE_PAWN:
-				whitePaths.append_array(GeneratePath.GeneratePawnsMoveset(counter, p, pieces)) 
-			elif p == DataHandler.PieceNames.WHITE_QUEEN:
-				whitePaths.append_array(GeneratePath.GenerateQueensMoveset(counter, p, pieces)) 
+			if p in DataHandler.PieceNames.values():
+				whitePaths.append_array(GeneratePath.get_valid_moves(counter, p, pieces)) 
 			counter += 1
 				
-		if whitePaths.size() == 0:
-			# No Paths -> Winner
-			return true
 		
 		counter = 0
 		# Checking paths that pieces can move
 		for p in blackPieces:
-			if p == DataHandler.PieceNames.BLACK_PAWN:
-				blackPaths.append_array(GeneratePath.GeneratePawnsMoveset(counter, p, pieces)) 
-			elif p == DataHandler.PieceNames.BLACK_QUEEN:
-				blackPaths.append_array(GeneratePath.GenerateQueensMoveset(counter, p, pieces)) 
+			if p in DataHandler.PieceNames.values():
+				blackPaths.append_array(GeneratePath.get_valid_moves(counter, p, pieces)) 
 			counter += 1
-		if blackPaths.size() == 0:
-			# No Paths -> Winner
-			return true
 			
-	return false
+		if blackPaths.size() == 0 and whitePaths.size() == 0:
+			# No Paths -> Draw
+			return DataHandler.WinnerSide.DRAW
+			
+	return null
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -84,9 +90,3 @@ func _ready():
 	assets.append("res://graphics/whitefig_queen.png")
 	assets.append("res://graphics/blackfig.png")
 	assets.append("res://graphics/blackfig_queen.png")
-
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass

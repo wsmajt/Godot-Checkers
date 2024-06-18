@@ -1,14 +1,5 @@
 extends Node
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
-
 # MinMax Algorithm is a decision rule used in AI.
 # Its for minimizing the possible loss for a worst case scenario
 # One side will try to maximize the value, other will try to minimize
@@ -21,7 +12,7 @@ func minimax(board : Array, depth, player : DataHandler.Sides):
 	var best_board
 	
 	# Checking if depth is 0 so no more minmax, or checking if move is the winner move
-	if depth == 0 or DataHandler.check_board_winner(board[0]) == true:
+	if depth == 0 or DataHandler.check_board_winner(board[0]) != null:
 		# Counting pieces and returning array with [piece_array[], move[piece_slot, move_slot, jump_slot], score]
 		var pieces_left = GeneratePath.count_pieces(board[0])
 		return [board[0], board[1], GeneratePath.evaluate(pieces_left)]
@@ -41,7 +32,7 @@ func minimax(board : Array, depth, player : DataHandler.Sides):
 			
 			# Checking better value to take for minimizing the loss
 			maxEval = max(maxEval, evaluation)
-			if evaluation != null and maxEval == evaluation:
+			if maxEval == evaluation:
 				best_board = b
 				
 		# Returning best move
@@ -73,7 +64,6 @@ func simulate_move(piece, move, piece_array):
 	var pieceLocation = move[0]
 	var moveLocation = move[1]
 	var jumpLocation = move[2]
-	var pieceType = piece_array[pieceLocation]
 	if jumpLocation != null:
 		piece_array[jumpLocation] = -1
 	piece_array[pieceLocation] = -1 # Usuwanie pionka z oryginalnej pozycji
@@ -91,11 +81,9 @@ func get_all_moves(piece_array : Array, side : DataHandler.Sides):
 			var valid_moves = GeneratePath.get_valid_moves(counter, piece, piece_array)
 			for move in valid_moves:
 				if move[1] != null:
-					var temp_piece_array = GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL)
-					var temp_piece = temp_piece_array[counter]
-					var new_piece_array = simulate_move(temp_piece, move, temp_piece_array)
-					var pieces_left = GeneratePath.count_pieces(new_piece_array)
-					var new_board = [new_piece_array, move, GeneratePath.evaluate(pieces_left)]
+					var parsed_piece_array = GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL).duplicate(true)
+					var new_piece_array = simulate_move(piece, move, parsed_piece_array)
+					var new_board = [new_piece_array, move, GeneratePath.evaluate(GeneratePath.count_pieces(new_piece_array))]
 					boards.append(new_board)
 		counter += 1
 			
