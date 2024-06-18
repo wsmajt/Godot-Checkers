@@ -333,6 +333,7 @@ func _on_reset_button_pressed():
 	AudioPlayer.play()
 	clear_piece_array()
 	clear_board_filter()
+	StatusLabel.text = "Godot Checkers"
 	whosMove = DataHandler.Sides.WHITE
 	difficultyDropDown.disabled = false
 	resetButton.disabled = true
