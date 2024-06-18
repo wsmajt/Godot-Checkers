@@ -14,6 +14,8 @@ class_name Game extends Control
 @onready var StatusLabel = $Background/StatusLabel
 @onready var difficultyDropDown = $Background/DifficultyDropDown
 @onready var resetButton = $Background/ResetButton
+@onready var playButton = $Background/PlayWithFriend
+@onready var playWithAiButton = $Background/PlayWithAI
 
 # Sounds
 @onready var AudioPlayer = $AudioStreamPlayer2D
@@ -27,6 +29,7 @@ var grid_array := []
 var piece_array := []
 var icon_offset := Vector2(40.5, 40.5)
 var legalMoves := []
+#
 var fen = "1p1p1p1p/p1p1p1p1/1p1p1p1p/8/8/P1P1P1P1/1P1P1P1P/P1P1P1P1 w - 0 1"
 var whosMove = DataHandler.Sides.WHITE 
 var gamestart := false
@@ -114,11 +117,11 @@ func _on_slot_clicked(slot) -> void:
 		
 		# AI is checking for the best move it can make
 		var ai_board
-		if difficulty == 0:
+		if difficulty == 2:
 			ai_board = CheckersBot.minimax([GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL), [], 0], 1, DataHandler.Sides.BLACK)
 		elif difficulty == 1:
 			ai_board = CheckersBot.minimax([GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL), [], 0], 2, DataHandler.Sides.BLACK)
-		elif difficulty == 2:
+		elif difficulty == 0:
 			ai_board = CheckersBot.minimax([GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL), [], 0], 3, DataHandler.Sides.BLACK)
 		elif difficulty == 4:
 			ai_board = CheckersBot.minimax([GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL), [], 0], 4, DataHandler.Sides.BLACK)
@@ -133,11 +136,9 @@ func _on_slot_clicked(slot) -> void:
 		# Need to wait 0.6 cause bot is too fast
 		await get_tree().create_timer(0.6).timeout
 		
-		# Finally AI moving a piece
-		move_piece(piece_array[piece_id], move_id)
-		
 		# Checking if game is still running if yes then change Sides
 		if gamestart == true:
+			move_piece(piece_array[piece_id], move_id)
 			whosMove = DataHandler.getNextSide(whosMove)
 			if whosMove == DataHandler.Sides.WHITE:
 				StatusLabel.text = "Ruch gracza białego!"
@@ -292,6 +293,8 @@ func _play_button_pressed():
 	whosMove = DataHandler.Sides.WHITE
 	StatusLabel.text = "Zaczyna gracz biały!"
 	resetButton.disabled = false
+	playButton.disabled = true
+	playWithAiButton.disabled = true
 	AudioPlayer.stream = startGameSound
 	AudioPlayer.play()
 	piece_selected = null
@@ -306,6 +309,8 @@ func _play_ai_button_pressed():
 	whosMove = DataHandler.Sides.WHITE
 	difficultyDropDown.disabled = true
 	resetButton.disabled = false
+	playButton.disabled = true
+	playWithAiButton.disabled = true
 	StatusLabel.text = "Zaczyna gracz biały!"
 	AudioPlayer.stream = startGameSound
 	AudioPlayer.play()
@@ -335,6 +340,8 @@ func _on_reset_button_pressed():
 	clear_board_filter()
 	StatusLabel.text = "Godot Checkers"
 	whosMove = DataHandler.Sides.WHITE
+	playButton.disabled = false
+	playWithAiButton.disabled = false
 	difficultyDropDown.disabled = false
 	resetButton.disabled = true
 	piece_selected = null

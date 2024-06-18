@@ -65,9 +65,9 @@ func check_board_winner(piece_array : Array, whosMove : DataHandler.Sides):
 					
 	# If no pieces left -> Winner
 	if blackPiecesCount == 0:
-		return WinnerSide.BLACK
-	elif whitePiecesCount == 0:
 		return WinnerSide.WHITE
+	elif whitePiecesCount == 0:
+		return WinnerSide.BLACK
 	else:
 		counter = 0
 		# Checking paths that pieces can move
