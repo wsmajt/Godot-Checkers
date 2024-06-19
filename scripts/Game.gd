@@ -29,7 +29,6 @@ var grid_array := []
 var piece_array := []
 var icon_offset := Vector2(40.5, 40.5)
 var legalMoves := []
-#
 var fen = "1p1p1p1p/p1p1p1p1/1p1p1p1p/8/8/P1P1P1P1/1P1P1P1P/P1P1P1P1 w - 0 1"
 var whosMove = DataHandler.Sides.WHITE 
 var gamestart := false
@@ -137,8 +136,10 @@ func _on_slot_clicked(slot) -> void:
 		await get_tree().create_timer(0.6).timeout
 		
 		# Checking if game is still running if yes then change Sides
-		if gamestart == true:
+		if gamestart == true and aiGame == true:
 			move_piece(piece_array[piece_id], move_id)
+		
+		if gamestart == true:
 			whosMove = DataHandler.getNextSide(whosMove)
 			if whosMove == DataHandler.Sides.WHITE:
 				StatusLabel.text = "Ruch gracza białego!"
@@ -174,6 +175,14 @@ func move_piece(piece, location)-> void:
 	piece_array[location] = piece
 	piece.slot_ID = location
 	
+	# If piece is on the other end make it a Queen
+	if location >= 56 and location <= 63 and piece.type == DataHandler.PieceNames.BLACK_PAWN:
+		piece.type = DataHandler.PieceNames.BLACK_QUEEN
+		piece.load_icon(piece.type)
+	elif location >= 0 and location <= 7 and piece.type == DataHandler.PieceNames.WHITE_PAWN:
+		piece.type = DataHandler.PieceNames.WHITE_QUEEN
+		piece.load_icon(piece.type)
+	
 	# Check if someone wins
 	var winStatus = DataHandler.check_board_winner(GeneratePath.get_all_pieces(piece_array, DataHandler.Sides.ALL), whosMove)
 	if winStatus != null:
@@ -182,14 +191,6 @@ func move_piece(piece, location)-> void:
 		# Playing sound
 		AudioPlayer.stream = pieceMoveSound
 		AudioPlayer.play()
-	
-	# If piece is on the other end make it a Queen
-	if location >= 56 and location <= 63 and piece.type == DataHandler.PieceNames.BLACK_PAWN:
-		piece.type = DataHandler.PieceNames.BLACK_QUEEN
-		piece.load_icon(piece.type)
-	elif location >= 0 and location <= 7 and piece.type == DataHandler.PieceNames.WHITE_PAWN:
-		piece.type = DataHandler.PieceNames.WHITE_QUEEN
-		piece.load_icon(piece.type)
 	
 # Adding piece to a slot (Only using on the start of the game)
 func add_piece(piece_type, location) -> void:
@@ -275,6 +276,10 @@ func end_Game(status : DataHandler.WinnerSide):
 	gamestart = false
 	aiGame = false
 	difficultyDropDown.disabled = false
+	playButton.disabled = false
+	playWithAiButton.disabled = false
+	difficultyDropDown.disabled = false
+	resetButton.disabled = true
 	if status == DataHandler.WinnerSide.WHITE:
 		StatusLabel.text = "Wygrał gracz biały!"
 	elif status == DataHandler.WinnerSide.BLACK:

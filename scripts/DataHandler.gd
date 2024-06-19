@@ -84,13 +84,13 @@ func check_board_winner(piece_array : Array, whosMove : DataHandler.Sides):
 				blackPaths.append_array(GeneratePath.get_valid_moves(counter, p, pieces)) 
 			counter += 1
 			
-		if blackPaths.size() == 0 and whosMove == DataHandler.Sides.BLACK:
-			return DataHandler.WinnerSide.WHITE
-		elif whitePaths.size() == 0 and whosMove == DataHandler.Sides.WHITE:
-			return DataHandler.WinnerSide.BLACK
-		elif blackPaths.size() == 0 and whitePaths.size() == 0:
+		if blackPaths.size() == 0 and whitePaths.size() == 0:
 			# No Paths -> Draw
 			return DataHandler.WinnerSide.DRAW
+		elif whitePaths.size() == 0 and whosMove == DataHandler.Sides.WHITE:
+			return DataHandler.WinnerSide.BLACK
+		elif blackPaths.size() == 0 and whosMove == DataHandler.Sides.BLACK:
+			return DataHandler.WinnerSide.WHITE
 			
 	return null
 
